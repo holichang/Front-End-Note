@@ -28,3 +28,12 @@ str.charCodeAt()==32 ||str.charCodeAt()==12288
 全角空格：/\u3000/g    
 
 半角空格：/\u0020/g
+
+#### 2.JSON：
+
+##### 2.1 JSON.stringfy()
+
+#### 3.回调函数
+
+
+
