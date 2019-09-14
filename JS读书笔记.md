@@ -231,6 +231,26 @@ alert(pattern.toString());/\[bc\]at/gi
 
 ### 5.5 Function类型
 
+#### 5.5.1 函数提升：解析器在向执行环境中加载数据时，对函数声明和函数表达式并非一视同仁，解析器会率先读取函数声明，并使其在执行任何代码之前可用，至于函数表达式，则必须等到解析器执行它所在的代码行，才会真正被解释执行。
+
+valueOf()和toString()方法返回函数的源代码
+
+#### 5.5.2 函数内部属性：arguments 和this
+
+arguments:类数组对象，有一个名叫callee的属性，该属性是一个指针，指向拥有这个arguments对象的函数
+
+arguments.callee:方便用于递归
+
+另一个函数对象的属性：caller：保存着调用当前函数的函数的引用(arguments.callee.caller:可实现松散的耦合)
+
+#### 5.5.3 函数属性和方法：
+
+属性：length(表示函数希望接收的命名参数的格式) 和 prototype（ES5中不可枚举）
+
+方法：apply()（第二个参数是数组或arguments）和call():用于在特定的作用域中调用函数，**可以扩充函数赖以运行的作用域**
+
+bind():该方法会创建一个函数实例，其this值会被绑定到传给bind()函数的值
+
 ### 5.6基本包装类型
 
 ECMAScript提供了3个特殊的引用类型：Boolean,Number和String,每当读取一个基本类型值的时候，后台就会创建一个对应的基本包装类型的对象，从而让我们能够调用一些方法来操作这些数据。
@@ -331,7 +351,226 @@ str1 在 str2前面：return -1; str1 在 str2后面：return 1;str1 等于 str2
 
 ### 6.1 理解对象
 
+#### 6.1.1 属性类型
 
+ES5中有两种属性：数据属性和访问器属性
+
+**数据属性**：数据属性包含一个数据值的位置。在这个位置可以读取和写入值。数据属性有4个描述其行为的特性：
+
+[[Configurable]]:表示能否通过delete删除属性从而重新定义属性，能否修改属性的特性，或者能否把属性修改为访问器属性。
+
+[[Enumerable]]：表示能否通过for-in循环返回属性。
+
+[[Writable]]：表示能否修改属性的值。
+
+[[Value]]：包含这个属性的值。
+
+**要修改属性默认的特性：**ES5的Object.defineProperty()方法（三个参数：属性所在的对象、属性的名字、描述符对象）使用如下：
+
+```JS
+var person={};
+Object.defineProperty(person,"name",{
+    writable:false;
+    value:"Nicholas";
+})
+alert(person.name);//"Nicholas"
+person.name="Greg";
+alert(person.name);//"Nicholas"
+```
+
+可以多次调用Object.defineProperty()方法修改同一个属性，但在把configurable特性设置为false之后就会有限制了。同时，在调用Object.defineProperty()方法创建一个新属性时，如果不指定，configurable，enumerable和writable特性的默认值都是false,如果调用Object.defineProperty()方法是修改已定义属性的特性，则无此限制。
+
+**访问器属性**（常用方法：设置一个属性的值会导致其他属性发生变化）
+
+访问器属性不包含数据值，它包含一对getter函数和setter函数（不过这两个函数都不是必需的）。在读取访问器属性时，会调用getter函数，这个函数负责返回有效的值，在写入访问器属性时，会调用setter函数并传入新值，这个函数负责决定如何处理数据。访问器属性有如下4个特性：
+
+[[Configurable]]:表示能否通过delete删除属性从而重新定义属性，能否修改属性的特性，或者能否把属性修改为数据属性。
+
+[[Enumerable]]：表示能否通过for-in循环返回属性。
+
+[[Get]]：在读取属性时调用的函数。默认值为undefined。
+
+[[Set]]：在写入属性时调用的函数。默认值为undefined。
+
+**访问器属性不能直接定义，必须使用**Object.defineProperty()来定义。
+
+```JS
+var book={
+    _year:2004,
+    edition:1
+};
+Object.defineProperty(book,"year",{
+    get:function(){
+        return book._year;
+    },
+    set:function(newValue){
+        if(newValue>2004){
+            this._year=newValue;
+            this.edition=newValue-2004;
+        }
+    }
+});
+book.year=2005;
+alert(book.edition);//2
+```
+
+#### 6.1.2 定义多个属性
+
+Object.defineProperties()方法:可以一次性定义多个属性
+
+```JS
+Object.defineProperties(book,{
+    _year:{
+        writable:true,
+        value:2004
+    },
+    edition:{
+        writable:true;
+        value:1
+    },
+    year:{
+        get:function(){
+            return book._year;
+        },
+        set:function(newValue){
+            if(newValue>2004){
+                this._year=newValue;
+                this.edition=newValue-2004;
+            }
+        }
+    }
+});
+```
+
+#### 6.1.3 读取属性的特性
+
+Object.getOwnPropertyDescriptor()方法：取得给定属性的描述符。接收两个参数：属性所在的对象和要读取其描述符的属性名称，如：(接上段代码)
+
+```js
+var descriptor=Object.getOwnPropertyDescriptor(book,"_year");
+alert(descriptor.value);//2004
+alert(descriptor.configurable);//false
+```
+
+**ES5的Object.getOwnPropertyDescriptor（）方法只能用于实例属性，要去的原型属性的描述符，必须直接在原型对象上调用该方法。**
+
+### 6.2创建对象
+
+#### 6.2.1 工厂模式：
+
+用函数来封装以特定接口创建对象的细节（虽然解决了创建多个相似对象的问题，但没有解决对象识别的问题）
+
+#### 6.2.2 构造函数模式
+
+```js
+function Person(name,age,job){
+    this.name=name;
+    this.age=age;
+    this.job=job;
+    this.sayName=function(){
+        return this.name;
+    };
+}
+var person1=new Person("Nicholas",29,"Software Engineer");
+var person2=new Person("Greg",23,"Doctor");
+alert(person1.constructor==Person);//true
+alert(person1 instanceof Person);//true
+```
+
+调用构造函数实际会经历以下4个步骤：
+
+（1）创建一个新对象
+
+（2）将构造函数的作用域赋给新对象（因此this就指向了这个对象）
+
+（3）执行构造函数中的代码（为这个新对象添加属性）
+
+（4）返回新对象
+
+**构造函数模式存在的问题**：每个方法都要在每个实例重新创建一遍
+
+#### 6.2.3 原型模式
+
+**（1）理解原型对象**：prototype是通过调用构造函数而创建的那个对象实例的原型对象
+
+```JS
+function Person(){
+}
+Person.prototype.name="Nicholas";
+Person.prototype.age=29;
+Person.prototype.job="Software Engineer";
+Person.prototype.sayName=function(){
+    alert(this.name);
+};
+var person1 = new Person();
+person1.sayName();//"Nicholas"
+```
+
+在默认情况下，所有原型对象都会自动获得一个constructor(构造函数)属性，这个属性是一个指向prototype属性所在函数的指针。Person.prototype.constructor指向Person
+
+明确一点：**这个连接存在于实例与构造函数的原型对象之间**，而不是存在于实例与构造函数之间（即person1与Person.prototype之间的联系）person1内部有一个指向Person.prototype的指针
+
+```js
+alert(Person.prototype.isPrototypeOf(person1));//true
+```
+
+**Object.getPrototypeOf():**可以方便地获取一个对象的原型
+
+```js
+alert(Object.getPrototypeOf(person1)==Person.prototype);//true
+alert(Object.getPrototypeOf(person1).name);//"Nicholas"
+```
+
+当代码都去某个对象的某个属性时，会先从对象实例本身开始搜索，如果没有找到属性名，则继续搜索指针指向的原型对象。
+
+当为对象实例添加一个属性时，这个属性就会屏蔽原型对象中保存的同名属性，也就是说，添加这个属性值会阻止我们访问原型中的那个属性，但不会修改那个属性;不过使用delete操作符可以完全删除实例属性。
+
+```JS
+person1.name="Greg";
+alert(person1.name);//Greg
+alert(person1.hasOwnProperty("name"));//true
+delete person1.name;
+alert(person1.hasOwnProperty("name"));//false
+alert(person1.name);//Nicholas
+```
+
+**hasOwnProperty()**方法：检测一个属性是存在于实例中还是原型中
+
+**（2）原型与in操作符**
+
+**单独使用**：in操作符只要通过对象能访问到属性就返回true,hasOwnProperty()只在属性存在于实例中时才返回true,因此当in操作符返回true，而hasOwnProperty()返回false时,就说明该属性存在于原型中
+
+**for-in循环**时：返回的是所有能够通过对象访问的，可枚举的属性，其中既包括存在于实例中的属性，也包括在原型中的属性。（**屏蔽了原型中不可枚举属性（即将[[Enumerable]]标记为false属性）的实例属性也会在for-in循环中返回，因为根据规定，所有开发人员定义的属性都是可枚举的——只有在IE8及更早版本中例外**）
+
+**Object.keys()**方法：接收一个对象作为参数，返回一个包含所有**可枚举**属性的**字符串**数组
+
+**Object.getOwnPropertyNames():**接收一个对象作为参数，返回一个包含**所有实例属性**的**字符串**数组
+
+**（3）更简单的原型语法**：用字面量法重写原型对象
+
+```js
+function Person(){
+}
+Person.prototype={
+    constructor:Person,
+    name:"Nicholas",
+    age:29,
+    job:"Software Engineer",
+    sayName:function(){
+        alert(this.name);
+    }
+}
+Object.defineProperty(Person.prototype,"constructor",{
+    enumerable:false,
+    value:Person
+});
+var person1 = new Person();
+person1.sayName();//"Nicholas"
+```
+
+但此时，constructor属性不再指向Person函数，而是**指向Object**,但由于此时constructor属性为自定义的，**可枚举**，因此可以通过Object.defineProperty()将其[[Enumerable]]属性特性改为false。
+
+**（4）原型的动态性**
 
 
 
