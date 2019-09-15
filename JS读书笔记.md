@@ -229,6 +229,14 @@ alert(pattern.toString());/\[bc\]at/gi
 
 ### 5.4 Date类型
 
+Date.parse():接受一个表示日期的字符串,然后根据这个字符串返回相应日期的毫秒数
+
+Date.UTC()：参数分别是年份，基于0的月份（0-11），月中的哪一天（1-31），小时数（0-23），分钟，秒数以及毫秒数。同样返回相应的毫秒数
+
+Date.now():返回调用这个方法的日期和时间的毫秒数
+
+
+
 ### 5.5 Function类型
 
 #### 5.5.1 函数提升：
@@ -454,7 +462,7 @@ alert(descriptor.value);//2004
 alert(descriptor.configurable);//false
 ```
 
-**ES5的Object.getOwnPropertyDescriptor（）方法只能用于实例属性，要去的原型属性的描述符，必须直接在原型对象上调用该方法。**
+**ES5的Object.getOwnPropertyDescriptor（）方法只能用于实例属性，要取得原型属性的描述符，必须直接在原型对象上调用该方法。**
 
 ### 6.2创建对象
 
@@ -523,7 +531,7 @@ alert(Object.getPrototypeOf(person1)==Person.prototype);//true
 alert(Object.getPrototypeOf(person1).name);//"Nicholas"
 ```
 
-当代码都去某个对象的某个属性时，会先从对象实例本身开始搜索，如果没有找到属性名，则继续搜索指针指向的原型对象。
+当代码要取得某个对象的某个属性时，会先从对象实例本身开始搜索，如果没有找到属性名，则继续搜索指针指向的原型对象。
 
 当为对象实例添加一个属性时，这个属性就会屏蔽原型对象中保存的同名属性，也就是说，添加这个属性值会阻止我们访问原型中的那个属性，但不会修改那个属性;不过使用delete操作符可以完全删除实例属性。
 
@@ -574,5 +582,64 @@ person1.sayName();//"Nicholas"
 
 **（4）原型的动态性**
 
+重写原型对象切断了现有原型与任何之前已经存在的对象实例之间的联系，他们引用的仍然是最初的原型。
 
+**所以只能修改**
+
+**（5）原生对象的原型**
+
+可以修改如Array,Object,String等原生引用类型的原型，如:
+
+```JS
+String.prototype.startsWith=function(text){
+    return this.indexof(text)==0;
+}
+```
+
+**（6）原型对象的问题**
+
+原型对象中的引用类型值会被共享
+
+#### 6.2.4 组合使用构造函数模式和原型模式（最广泛、认同度最高）
+
+构造函数用于定义实例属性，而原型模式用于定义方法和共享的属性。
+
+#### 6.2.5 动态原型模式（可以把所有信息都封装在构造函数中）
+
+通过检查某个应该存在的方法是否有效，来决定是否需要初始化原型，如：
+
+```JS
+function Person(name,age,job){
+    this.name=name;
+    this.age=age;
+    this.job=job;
+    if(typeof this.sayName!="function")
+        //此时sayName若是不存在或者不是函数类型，都会对原型初始化，而且检查一个属性或方法就可以
+    {
+        Person.prototype.sayName=function(){
+            return this.name;
+        }
+    }
+}
+```
+
+#### 6.2.6 寄生（parasitic）构造函数模式（不建议使用）
+
+```JS
+values.push.apply(values,arguments);//arguments是个类数组对象，不能直接push到数组中
+```
+
+构造函数在没有返回值的情况下，默认返回新对象实例，而该模式下的构造函数形式类似于工厂模式，在末尾有return语句，可以重写调用构造函数时返回的值，因此，**返回的对象与构造函数以及构造函数的原型属性之间没有关系**，也就是说，构造函数返回的对象与在构造函数外部创建的对象没有什么不同。使用instanceof 没有意义。
+
+#### 6.2.7 稳妥构造函数模式
+
+指的是没有公共属性，最适合在一些安全环境中使用，也与工厂模式很像
+
+与寄生构造函数模式的区别：（1）不引用this对象；（2）不使用new操作符
+
+这种模式下创建的对象除了使用方法，没有其他办法访问属性值。
+
+### 6.3 继承
+
+#### 6.3.1 原型链
 
