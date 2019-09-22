@@ -105,3 +105,55 @@ innerHTML=&lt;b&gt;//会被转为<b>
 str=innerHTML;//innerHTML中的<b>标签被转为&lt;b&gt;
 ```
 
+#### 7.相关方法
+
+select() 方法用于选取input密码域或文本域中的文本
+
+focus()方法用于使输入框获得焦点
+
+对于<select>标签：
+
+selectedIndex:设置或返回下拉列表中被选项目的索引号。
+
+**方法：**
+
+add():向下拉列表添加一个选项。
+
+blur():从下拉列表移开焦点。
+
+focus():在下拉列表上设置焦点。
+
+remove():从下拉列表中删除一个选项。
+
+#### 8.获取上一个节点和下一个节点
+
+previousSibling 属性返回元素节点之前的兄弟节点（包括文本节点、注释节点）；
+
+previousElementSibling 属性只返回元素节点之前的兄弟元素节点（不包括文本节点、注释节点）；
+
+nextSibling 属性返回元素节点之后的兄弟节点（包括文本节点、注释节点）；
+
+nextElementSibling 属性只返回元素节点之后的兄弟元素节点（不包括文本节点、注释节点）；
+
+#### 9.innerHTML和outerHTML
+
+innerHTML 设置或获取位于对象起始和结束标签内的HTML
+
+outerHTML设置或获取对象及其内容的HTML形式
+
+#### 10.html中的name，id和value
+
+**value 和 name**
+
+1.name是控件的名称（多个控件可以取同一个名称），value是控件的值
+
+2.并不是所有控件的value都会显示出来，比如 checkbox, radio, hidden；
+
+3.定义控件的 name和value 就可以在服务器上获取这个控件和它的值;
+
+4.你没看到 submit 的name，并不表示浏览器忽略了它的 name，在提交之前它也被浏览器定义了 name，在服务器上一样可以得到它的 name 和 value；
+
+5.控件不定义name/value也可以显示，只是为了方便在服务器接收和区别，才定义它的 name/value，当然按钮的 value 不光是存放它的值，也用来显示
+
+[name 和id](https://www.cnblogs.com/jamesf/p/4751722.html)
+
