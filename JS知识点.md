@@ -181,7 +181,9 @@ DTD 的作用是定义 XML 文档的结构。它使用一系列合法的元素�
 
 **（4）如何通过JS读写XML**
 
-JS动态写入SVG：
+
+
+
 
 ##### 11.2 SVG
 
@@ -193,3 +195,22 @@ SVG 文件可通过以下标签嵌入 HTML 文档：<embed>、<object> 或者 <i
 
 SVG的代码可以直接嵌入到HTML页面中，或您可以直接链接到SVG文件。
 
+##### 11.3 JS动态写入SVG：
+
+**外部SVG：**
+
+（1）通过object、embed或者iframe标签将SVG文件引入到HTML页面:其中的内容会有完全属于自己的document对象，可以用**getSVGDocument()**方法获取SVG文档对象
+
+（2）如果使用object或iframe引入SVG文档，除了`getSVGDocument()`，还可以使用`contentDocument`属性来获取其引入文档对应的document对象。区别在于如果是引入的不是SVG文件，而是XML或者HTML等等，`contentDocuement`依然会返回对象，而`getSVGDocument()`则返回`null`。
+
+（3）SVG元素对象都需要通过调用[`setAttribute()`](https://developer.mozilla.org/en-US/docs/Web/API/element.setAttribute)方法来设定属性值
+
+**要求：满足同源策略（Same-origin-policy）**
+
+同源策略指的是三个相同
+
+- 协议相同
+- 域名相同
+- 端口相同
+
+如果非同源，那么以下的行为将会受到限制；1，**cookie，localStorage**     2，**ajax** 
