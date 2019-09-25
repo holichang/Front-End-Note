@@ -157,3 +157,39 @@ outerHTML设置或获取对象及其内容的HTML形式
 
 [name 和id](https://www.cnblogs.com/jamesf/p/4751722.html)
 
+#### 11.SVG
+
+##### 11.1 XML：是独立于软件和硬件的信息传输工具。
+
+**(1)XML和HTML：**
+
+XML 被设计用来传输和存储数据。HTML 被设计用来显示数据
+
+XML没有任何行为
+
+XML仅仅是纯文本
+
+XML的标签是没有预定义的，可以发明自己的标签
+
+**（2）XML的用途**
+
+XML把数据从HTML分离；XML简化数据共享，简化数据传输，简化平台变更，使数据更有用，用于创建新的Internet语言
+
+**（3）XML验证：DTD**（document type definition）
+
+DTD 的作用是定义 XML 文档的结构。它使用一系列合法的元素来定义文档结构：
+
+**（4）如何通过JS读写XML**
+
+JS动态写入SVG：
+
+##### 11.2 SVG
+
+SVG 是使用 XML 来描述二维图形和绘图程序的语言。
+
+SVG 文件可通过以下标签嵌入 HTML 文档：<embed>、<object> 或者 <iframe>。
+
+<embed>标签定义嵌入的内容，比如插件，使H5中的新标签
+
+SVG的代码可以直接嵌入到HTML页面中，或您可以直接链接到SVG文件。
+

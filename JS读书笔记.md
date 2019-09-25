@@ -375,7 +375,7 @@ ES5中有两种属性：数据属性和访问器属性
 
 [[Value]]：包含这个属性的值。
 
-**要修改属性默认的特性：**ES5的Object.defineProperty()方法（三个参数：属性所在的对象、属性的名字、描述符对象）使用如下：
+**要修改属性默认的特性：**ES5的**Object.defineProperty()**方法（三个参数：属性所在的对象、属性的名字、描述符对象）使用如下：
 
 ```JS
 var person={};
@@ -388,7 +388,7 @@ person.name="Greg";
 alert(person.name);//"Nicholas"
 ```
 
-可以多次调用Object.defineProperty()方法修改同一个属性，但在把configurable特性设置为false之后就会有限制了。同时，在调用Object.defineProperty()方法创建一个新属性时，如果不指定，configurable，enumerable和writable特性的默认值都是false,如果调用Object.defineProperty()方法是修改已定义属性的特性，则无此限制。
+可以多次调用Object.defineProperty()方法修改同一个属性，但在把configurable特性设置为false之后就会有限制了。同时，**在调用Object.defineProperty()方法创建一个新属性时，如果不指定，configurable，enumerable和writable特性的默认值都是false**,如果调用Object.defineProperty()方法是修改已定义属性的特性，则无此限制。
 
 **访问器属性**（常用方法：设置一个属性的值会导致其他属性发生变化）
 
@@ -454,7 +454,7 @@ Object.defineProperties(book,{
 
 #### 6.1.3 读取属性的特性
 
-Object.getOwnPropertyDescriptor()方法：取得给定属性的描述符。接收两个参数：属性所在的对象和要读取其描述符的属性名称，如：(接上段代码)
+**Object.getOwnPropertyDescriptor()**方法：取得给定属性的描述符。接收两个参数：属性所在的对象和要读取其描述符的属性名称，如：(接上段代码)
 
 ```js
 var descriptor=Object.getOwnPropertyDescriptor(book,"_year");
@@ -500,6 +500,10 @@ alert(person1 instanceof Person);//true
 **构造函数模式存在的问题**：每个方法都要在每个实例重新创建一遍
 
 #### 6.2.3 原型模式
+
+**构造函数，原型和实例的关系：**
+
+每个构造函数都有一个原型对象，原型对象都包含一个指向构造函数的指针，而实例都包含一个指向原型对象的内部指针。
 
 **（1）理解原型对象**：prototype是通过调用构造函数而创建的那个对象实例的原型对象
 
@@ -625,6 +629,8 @@ function Person(name,age,job){
 
 #### 6.2.6 寄生（parasitic）构造函数模式（不建议使用）
 
+假如我们想创建一个具有额外方法的特殊数组，由于不能直接修改Array函数，因此可以使用这个模式
+
 ```JS
 values.push.apply(values,arguments);//arguments是个类数组对象，不能直接push到数组中
 ```
@@ -635,7 +641,7 @@ values.push.apply(values,arguments);//arguments是个类数组对象，不能直
 
 指的是没有公共属性，最适合在一些安全环境中使用，也与工厂模式很像
 
-与寄生构造函数模式的区别：（1）不引用this对象；（2）不使用new操作符
+与寄生构造函数模式的区别：（1）不引用this对象（寄生模式在声明方法时使用）；（2）不使用new操作符
 
 这种模式下创建的对象除了使用方法，没有其他办法访问属性值。
 
@@ -647,5 +653,106 @@ ES只支持实现继承，而且主要依靠原型链
 
 #### 6.3.1 原型链
 
+基本思想：利用原型让一个引用类型继承另一个引用类型的属性和方法
 
+实现本质是重写原型对象，代之以另一个新类型的实例
+
+**（1）别忘记默认的原型**
+
+所有函数的默认原型都是Object的实例
+
+**（2）确定原型和实例的关系**
+
+instanceof操作符：+构造函数：只要用这个操作符测试实例与原型链中出现过的构造函数，就会返回true
+
+isPrototypeOf()方法:只要是原型链中出现过的原型对象，都可以说是该原型链所派生的实例的原型
+
+**（3）谨慎的定义方法**
+
+给原型添加方法的代码一定要放在替换原型的语句之后，且不能使用字面量方法创建原型方法
+
+**（4）原型链的问题**
+
+第一个问题：包含引用类型值的原型属性会被所有实例共享
+
+第二个问题：在创建子类型的实例时，不能向超类型的构造函数中传递参数
+
+#### 6.3.2 借用构造函数
+
+基本思想：在子类型构造函数的内部调用超类型构造函数（使用call()方法或apply()方法）
+
+好处：可以传递参数
+
+问题：无法避免构造函数模式存在的问题——方法都在构造函数中定义，无法复用
+
+#### 6.3.3 组合继承（JS中最常用的继承模式）
+
+指的是将原型链和借用构造函数的技术组合到一起，使用原型链实现对原型属性和方法的继承，而使用借用构造函数来实现对实例属性的继承。
+
+而且instanceof()和isPrototypeOf()也能够用于识别基于组合继承创建的对象
+
+```js
+function SuperType(name){
+    this.name=name;
+    this.colors=["red","green","blue"];
+}
+function SubType(name,age){
+    //继承属性
+    SuperType.call(this,name);//第二次调用构造函数，SubType实例中传入了第二组name和colors
+    this.age=age;
+}
+SuperType.prototype.sayName=function(){
+    alert(this.name);
+}
+//继承方法
+SubType.prototype=new SuperType();//第一次调用构造函数，SubType原型中传入了name和colors
+/*
+function inheriPrototype(subType,superType){
+    var prototype=object(superType.prototype);//构建超类型原型的一个副本
+    prototype.constructer=subType;
+    subType.prototype=prototype;//将新创建的对象（即副本）赋值给子类型的原型
+}
+inheriPrototype(SubType,SuperType);
+*/
+SubType.prototype.constructor=SubType;
+SubType.prototype.sayAge=function(){
+    alert(this.age);
+}
+var instance1 =new SubType("Nicholas",29);
+instance1.colors.push("yellow");
+alert(instance1.colors);//"red","green","blue","yellow"
+instance1.sayName();//"Nicholas"
+instance1.sayAge();//29
+
+var instance2 =new SubType("Greg",27);
+alert(instance2.colors);//"red","green","blue"
+instance2.sayName();//"Greg"
+instance2.sayAge();//27
+```
+
+<u>问题：会调用两次超类型构造函数</u>
+
+#### 6.3.4 原型式继承
+
+```JS
+function object(o){
+    function F(){}
+    F.prototype=o;
+    return new F();
+}
+```
+
+思想是基于对象o，创建一个实例，该实例的原型对象o,在包含引用类型属性值方面该方法与原型模式是一样的
+
+ES5新增了Object.create()方法：接受两个参数：一个是用作新对象原型的对象和（可选的）一个新对象定义额外的对象，该对象中每个属性都是通过自己的描述符定义的.
+
+#### 6.3.5 寄生式继承
+
+思路与寄生构造函数和工厂模式类似，即创建一个仅用于封装继承过程的函数，该函数在内部以某种方式来增强对象（即在内部通过构造函数创建一个实例，再为该对象增加方法，最后返回该对象）
+
+#### 6.3.6 寄生组合式继承（最理想）
+
+用于解决组合继承两次调用构造函数的问题，方法见上方代码，该方法只调用一次SuperType构造函数,且原型链保持不变。
+
+## 7.函数表达式
 
