@@ -214,3 +214,24 @@ SVG的代码可以直接嵌入到HTML页面中，或您可以直接链接到SVG�
 - 端口相同
 
 如果非同源，那么以下的行为将会受到限制；1，**cookie，localStorage**     2，**ajax** 
+
+#### 12.AJAX
+
+##### 12.1XMLHttpRequest对象的三个属性：
+
+onreadystatechange:存储函数（或函数名），每当 readyState 属性改变时，就会调用该函数。
+
+readyState:存有 XMLHttpRequest 的状态。从 0 到 4 发生变化。
+
+0: 请求未初始化
+
+1: 服务器连接已建立
+
+2: 请求已接收
+
+3: 请求处理中
+
+4: 请求已完成，且响应已就绪
+
+status:200: "OK";404: 未找到页面
+
