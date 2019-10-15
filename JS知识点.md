@@ -1,4 +1,4 @@
-#### 1.全角和半角：
+1.全角和半角：
 
 全角：是一种电脑字符，是指一个全角字符占用两个标准字符(或两个半角字符)的位置。全角占两个字节。
 
@@ -31,7 +31,9 @@ str.charCodeAt()==32 ||str.charCodeAt()==12288
 
 #### 2.JSON：
 
-##### 2.1 JSON.stringfy()
+`JSON.stringfy()`:将对象转为JSON字符串
+
+`JSON.parse`：将JSON字符串转为对象
 
 #### 3.回调函数
 
@@ -217,7 +219,7 @@ SVG的代码可以直接嵌入到HTML页面中，或您可以直接链接到SVG�
 
 #### 12.AJAX
 
-##### 12.1XMLHttpRequest对象的三个属性：
+##### XMLHttpRequest对象的三个属性：
 
 onreadystatechange:存储函数（或函数名），每当 readyState 属性改变时，就会调用该函数。
 
@@ -234,4 +236,78 @@ readyState:存有 XMLHttpRequest 的状态。从 0 到 4 发生变化。
 4: 请求已完成，且响应已就绪
 
 status:200: "OK";404: 未找到页面
+
+#### 13 HTML5 本地存储五种方案
+
+##### 13.1 Web Storage API
+
+源：origin，同源策略
+
+**（1）localStorage：**
+
+`localStorage` 中的键值对总是以字符串的形式存储。
+
+`localStorage.setItem()`
+
+`localStorage.getItem()`
+
+`localStorage.removeItem()`
+
+`localStorage.clear()`
+
+**（2）sessionStorage：**
+
+**（3）通过StorageEvent响应存储的变化**
+
+无论何时，[`Storage`](https://developer.mozilla.org/zh-CN/docs/Web/API/Storage) 对象发生变化时（即创建/更新/删除数据项时，重复设置相同的键值不会触发该事件，[`Storage.clear()`](https://developer.mozilla.org/zh-CN/docs/Web/API/Storage/clear) 方法至多触发一次该事件），`StorageEvent` 事件会触发。在同一个页面内发生的改变不会起作用——在**相同域名**下的**其他**页面（如一个新标签或 iframe）发生的改变才会起作用。在其他域名下的页面不能访问相同的 Storage 对象。
+
+当前页面使用的storage被其他页面修改时会触发StorageEvent事件. 
+
+**[事件在同一个域下的不同页面之间触发，即在A页面注册了storge的监听处理，只有在跟A同域名下的B页面操作storage对象，A页面才会被触发storage事件] **
+
+事件属性：
+
+![1570695196(1)](E:\Front-End-Note\image\1570695196(1).png)
+
+##### 13.2 Cookie(曾一度用于客户端存储，逐渐被淘汰)
+
+**（1）HTTP Cookie（也叫Web Cookie或浏览器Cookie）**
+
+Cookie主要用于以下三个方面：
+
+**会话状态管理**（如用户登录状态、购物车、游戏分数或其它需要记录的信息）
+
+**个性化设置**（如用户自定义设置、主题等）
+
+**浏览器行为跟踪**（如跟踪分析用户行为等）
+
+**HttpOnly**:为避免跨域脚本 (XSS) 攻击，通过JavaScript的 Document.cookie API无法访问带有 HttpOnly 标记的Cookie，它们**只应该发送给服务端**。如果包含服务端 Session 信息的 Cookie 不想被客户端 JavaScript 脚本调用，那么就应该为其设置 HttpOnly 标记。
+
+JavaScript可以通过跨站脚本攻击（XSS）的方式来窃取Cookie。
+
+**安全：**
+
+会话劫持和XSS；跨站请求伪造（CSRF）
+
+**（2）document.cookie**
+
+`docCookies.setItem(name, value[, end[, path[, domain[, secure]]]])`
+
+`docCookies.getItem(name)`
+
+`docCookies.removeItem(name[, path],domain)`
+
+`docCookies.hasItem(name)`
+
+`docCookies.keys()`
+
+路径限制并**不能**阻止从其他路径访问cookie. 使用简单的DOM即可轻易地绕过限制(比如创建一个指向限制路径的, 隐藏的[iframe](https://developer.mozilla.org/zh-CN/docs/Web/HTML/Element/iframe), 然后访问其 `contentDocument.cookie` 属性). 保护cookie不被非法访问的唯一方法是将它放在另一个域名/子域名之下, 利用[同源策略](https://developer.mozilla.org/zh-CN/docs/Web/Security/Same-origin_policy)保护其不被读取.
+
+document.cookie的键和值中不能使用；，=以及空格，要用escape()函数进行编码，取出值后用unescape()解码
+
+##### 13.3 IndexedDB
+
+
+
+##### 
 

@@ -306,13 +306,42 @@ favoriteColor: 'Vue Green'
 
 v-for="n in 10"
 
-
-
-
-
 ### 7.事件处理
 
+**按键修饰符：**
+
+元素获得焦点之后才会触发按键事件，所以要把keyup绑定在document上，或者先触发*获得焦点事件*
+
+**系统修饰符**：
+
+`.ctrl`,`.alt`,`.shift`,`.meta`修饰符仅在按下相应按键时才触发鼠标或键盘事件的监听器
+
+请注意修饰键与常规按键不同，在和 `keyup` 事件一起用时，事件触发时修饰键必须处于按下状态。换句话说，只有在按住 `ctrl` 的情况下释放其它按键，才能触发 `keyup.ctrl`。而单单释放 `ctrl` 也不会触发事件。如果你想要这样的行为，请为 `ctrl` 换用 `keyCode`：`keyup.17`。
+
+`.exact`:修饰符允许你控制由精确的系统修饰符组合触发的事件。
+
+<!-- 即使 Alt 或 Shift 被一同按下时也会触发 -->
+`<button @click.ctrl="onClick">A</button>`
+<!-- 有且只有 Ctrl 被按下的时候才触发 -->
+`<button @click.ctrl.exact="onCtrlClick">A</button>`
+<!-- 没有任何系统修饰符被按下的时候才触发 -->
+`<button @click.exact="onClick">A</button>`
+
+**鼠标按钮修饰符**
+
+`.left`,`.right`,`.middle`这些修饰符会限制处理函数仅响应特定的鼠标按钮。
+
 ### 8.表单输入绑定
+
+`v-model` 在内部为不同的输入元素使用不同的属性并抛出不同的事件：
+
+text 和 textarea 元素使用 `value` 属性和 `input` 事件；
+
+checkbox 和 radio 使用 `checked` 属性和 `change` 事件；
+
+**如果把多个复选框绑定到同一个数组，如果添加value，当选中时会把value值传入数组中**
+
+select 字段将 `value` 作为 prop 并将 `change` 作为事件。
 
 ### 9.组件基础
 
