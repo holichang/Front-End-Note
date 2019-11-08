@@ -237,6 +237,12 @@ readyState:存有 XMLHttpRequest 的状态。从 0 到 4 发生变化。
 
 status:200: "OK";404: 未找到页面
 
+xmlhttp.responseText:返回的文本文件
+
+xmlhttp.open()
+
+xmlhttp.send()
+
 #### 13 HTML5 本地存储五种方案
 
 ##### 13.1 Web Storage API
@@ -307,7 +313,11 @@ document.cookie的键和值中不能使用；，=以及空格，要用escape()�
 
 ##### 13.3 IndexedDB
 
+#### 14.event.preventDefault()
+
+告诉[user agent](https://developer.mozilla.org/en-US/docs/Glossary/user_agent)：如果此事件没有被显式处理，那么它默认的动作也不要做（因为默认是要做的）。
+
+`event.stopPropagation()`:阻止捕获和冒泡阶段中当前事件的进一步传播
 
 
-##### 
 

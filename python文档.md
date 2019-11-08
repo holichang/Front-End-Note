@@ -208,3 +208,18 @@ Python引入了按目录来组织模块的方法，称为包（Package）。每�
 类似`_xxx`和`__xxx`这样的函数或变量就是非公开的（private），不应该（**不是不能**）被直接引用，比如`_abc`，`__abc`等；
 
 **python没有一种方法可以完全限制访问private函数或变量，但从编程习惯上不应该引用private函数或变量，可以将private函数或变量封装抽象起来**
+
+
+
+### 10. IO编程
+
+os模块：`os.path.join()`连接路径    `os.path.split()`拆分路径
+
+shutil模块：提供了copyfile()函数，用于复制文件，可以作为os模块得补充
+
+
+
+
+
+****
+

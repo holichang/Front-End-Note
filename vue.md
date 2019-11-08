@@ -101,9 +101,15 @@ webpack，babel，Gulp,Grunt
 
 
 
-#### 5.less 和 sass
+#### 5.less、sass、scss
 
-css预编译器
+less 和 sass 是两种 css 预编译语言，就是说通过 less 或者 scss 写的代码最终都会被编译成 css 再使用。其目的是为了更快、更结构的编写 css 文件，都能使用 变量、运算符、判断、方法等等。
+
+scss 与 sass 的区别：
+
+先有的 sass 后有的 scss
+scss 需要大括号{}和分号;
+sass 什么都不用直接裸奔，通过缩进来区分代码等级，像 yaml 语言
 
 #### 6.MVVM与MVC
 
