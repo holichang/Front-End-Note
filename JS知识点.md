@@ -319,5 +319,5 @@ document.cookie的键和值中不能使用；，=以及空格，要用escape()�
 
 `event.stopPropagation()`:阻止捕获和冒泡阶段中当前事件的进一步传播
 
-
+#### 15.promise
 
