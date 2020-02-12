@@ -393,5 +393,10 @@ document.cookie的键和值中不能使用；，=以及空格，要用escape()�
 
 （4）回掉函数可以理解为异步（不是严谨的异步操作）
 
-#### 16.promise
+#### 17.Flash和JS通过什么类如何交互？
+
+Flash提供了**ExternalInterface**接口与JavaScript通信，ExternalInterface有两个方法，**call和addCallback**：
+
+- **ExternalInterface.addCallback**("在js里可调用的flash方法名",flash内方法) //在flash中通过这个方法公开 在js中可调用的flash内的方法;
+- **ExternalInterface.call**("js方法",传给js的参数) //在flash里调用js里的方法
 
