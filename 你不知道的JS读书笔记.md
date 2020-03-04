@@ -130,15 +130,146 @@ JS引擎会在编译阶段进行数项的性能优化，其中有些优化依赖
 
 **无论通过何种手段将内部函数传递到所在的词法作用域以外，它持有对原始定义作用域的引用，无论在何处执行这个函数都会使用闭包**
 
+> 思考：通过使用闭包，在作用域之外也可以调用函数，同时该函数还可以访问本身词法作用域中的变量
 
+在定时器、事件监听器、AJAX请求、跨窗口通信、Web Workers或者任何其他的异步（或同步）任务中，只要使用了**回掉函数**，实际上就是在使用闭包
 
 ##### 4.循环和闭包
 
+IIFE：立即执行函数表达式，相当于将块转为了一个可以被关闭的作用域（var）
+
+使用块作用域（let）和闭包结合
+
 ##### 5.模块
 
+模块模式需要具备两个必要条件：
 
+（1）必须有外部的封闭函数，该函数必须至少被调用一次，（**每次调用都会创建一个新的模块实例？**）
+
+（2）封闭函数必须返回至少一个内部函数，这样内部函数才能在私有作用域中形成闭包，并且可以访问或者修改私有的状态
 
 ## 第二部分 this和对象原型
+
+#### 1.this全面解析
+
+**1.1 调用位置：函数在代码中被调用的位置（而不是被声明的位置）**
+
+调用栈：为了到达当前执行位置所调用的所有函数
+
+**1.2 绑定规则：**
+
+（1）默认绑定：独立函数调用。可以把这条规则看作是无法应用其他规则时的默认规则；
+
+回调函数相当于隐式的传参
+
+*对于默认绑定来说，决定this绑定对象的并不是调用位置是否是严格模式，而是函数体是否处于严格模式*
+
+（2）隐式绑定：在一个对象内部包含一个指向函数的属性，并通过这个属性间接引用函数，从而把this间接（隐式）绑定到这个对象上
+
+考虑调用位置是否有上下文对象（对象属性引用链中只有上一层或者说是最后一层在调用位置中起作用），参数传递其实就是一种隐式赋值；可能会发生隐式丢失
+
+（3）显式绑定：使用call()和apply()
+
+**硬绑定：**典型应用场景就是创建一个包裹函数，负责接收参数并返回值
+
+ES5提供了内置方法：Function.prototype.bind:会返回一个硬编码的新函数，它会把你指定的参数设置为this的上下文并调用原始函数。
+
+>怎么原生JS实现bind?
+>
+>```js
+>if(!Function.prototype.myBind){
+>    Function.prototype.myBind=function(oThis){
+>        if(typeof oThis!=='function'){
+>            throw new TypeError('Function.prototype.myBind-what is trying '+'to be found is not callable');
+>        }
+>        var aArgs=Array.prototype.slice.call(arguments,1);
+>        var fToBind=this;//要绑定的函数
+>        var fNOP=function () {};
+>        //
+>        var fBound=function(){
+>            return fToBind.apply((this instanceof fNOP && oThis? this:oThis),aArgs.concat.apply(aArgs,arguments));
+>        };   
+>        fNOP.prototype=this.prototype;
+>        fBound.prototype=new fNOP();
+>        //
+>        //这段代码会判断硬绑定是否是被new调用，如果是的话就会用新创建的this替换硬绑定的this
+>        return fBound;
+>    }
+>}
+>```
+>
+>
+
+**API调用的“上下文”：**如arr.forEach(function,可选参数，指定this)
+
+（4）new绑定:实际上并不存在所谓的“构造函数”，只有对于函数的构造调用
+
+使用new来调用函数，会自动执行下面的操作：
+
+a.创建（或者说是构造）一个全新的对象；
+
+b.这个新对象会被执行[[Prototype]]连接；
+
+c.这个新对象会绑定到函数调用的this；
+
+d.如果函数没有其他返回对象，那么new表达式中的函数调用会自动返回这个新对象
+
+**1.3 优先级**：new绑定>显式绑定>隐式绑定>默认绑定
+
+> **判断this：**
+>
+> 1.函数是否在new中调用（new绑定）？如果是的话this绑定的是新创建的对象
+>
+> 2.函数是否通过apply,call(显式绑定)？如果是的话，this绑定的是指定的对象
+>
+> 3.函数是否在某个上下文对象中调用（隐式绑定）？如果是的话，this绑定的就是这个上下文对象
+>
+> 4.如果上述都不是的话就是默认绑定，严格模式下this 绑定到undefined，非严格模式下绑定到全局对象
+
+**1.4 绑定例外**
+
+（1）被忽略的this
+
+如`foo.apply(null,arguments)`或`foo.bind(null,可预设参数)`，当函数并不关心this时，可以用null占位，默认规则下会把this绑定到全局对象，这种方式可能会导致许多问题（比如修改了全局对象），可以通过`Object.Create(null)`创建一个空对象，该对象与{}很像，**但并不会创建Object.prototype这个委托，所以它比{}更空**.
+
+（2）间接引用
+
+容易在赋值的时候发生，传递的是原函数的引用
+
+（3）软绑定:在绑定之后还保留隐式绑定和显式绑定对this值得修改（重点：考虑this不绑定全局对象和undefined时，可修改为其他对象）
+
+> 原生JS实现软绑定：
+
+```js
+if (!Function.prototype.softBind){
+    Function.prototype.softBind=function(obj){
+        var fn=this;
+        //捕获所有curried参数
+        var curried=[].slice.call(arguments,1);
+        var bound=function(){
+            return fn.apply(
+                (!this||this===global)?obj:this,curried.concat.apply(curried,arguments))
+        };
+        bound.prototype=Object.create(fn.prototype);//使fn成为bound的原型
+        return bound;
+    }
+}
+function foo(){
+    console.log("name:"+this.name);
+}
+var obj={name:"obj"},obj1={name:"obj1"},obj2={name:"obj2"};
+var fooOBJ=foo.softBind(obj);
+fooOBJ();//"obj"
+//此处调用采用默认绑定，this绑定到undefined 或全局对象
+//在强绑定中这之后this绑定不会再更换，而在软绑定中可通过隐式绑定或显示绑定修改内部this绑定
+obj2.foo=fooOBJ;
+obj2.foo();//"obj2"
+fooOBJ.apply(obj1,arguments);//"obj3"
+```
+
+**1.5 this词法**
+
+ES6中的箭头函数并不会使用四条标准的绑定规则，而是根据当前的词法作用域来决定this,具体来说，箭头函数会继承外层函数调用的this绑定（无论this绑定到什么），这其实和ES6之前的self=this机制一样
 
 
 

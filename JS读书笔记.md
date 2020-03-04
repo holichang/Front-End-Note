@@ -1,8 +1,6 @@
 [TOC]
 
-
-
-### 1.JavaScript简介
+## 1.JavaScript简介
 
 #### 1.1 ECMA-262：
 
@@ -20,7 +18,7 @@ DOM不只是针对JavaScript的，很多别的语言也都实现了DOM（如SVG,
 
 大多数浏览器在提及对JavaScript的支持情况时，一般都以ECMAScript兼容性和对DOM的支持情况为准。
 
-### 2 .在HTML中使用JavaScript
+## 2 .在HTML中使用JavaScript
 
 #### 2.1 < script >元素
 
@@ -60,7 +58,7 @@ XHTML的规则比HTML严格的多，为避免在XHTML中出现类似语法错误
 
 后期：对于准标准模式，可以通过使用过渡型或框架集型文档类型来触发
 
-### 3.基本概念
+## 3.基本概念
 
 #### 3.4 数据类型
 

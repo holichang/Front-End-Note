@@ -1,4 +1,8 @@
-1.全角和半角：
+[TOC]
+
+
+
+#### 1.全角和半角：
 
 全角：是一种电脑字符，是指一个全角字符占用两个标准字符(或两个半角字符)的位置。全角占两个字节。
 
@@ -6,7 +10,7 @@
 
 全角和半角主要是针对标点符号来说的，全角标点占两个字节，半角占一个字节。不管是半角还是全角，汉字都要占两个字节。
 
-##### JS判断输入的文字是全角还是半角
+**JS判断输入的文字是全角还是半角**
 
 ```js
 str="中文；;a";
@@ -15,11 +19,11 @@ alert(str.match(/[\u4e00-\u9fa5]/g));   //中文
 alert(str.match(/[\uff00-\uffff]/g));   //全角
 ```
 
-##### JS找到全角空格和半角空格
+**JS找到全角空格和半角空格**
 
 str.charCodeAt()==32 ||str.charCodeAt()==12288
 
-##### JS对全角与半角的相互转化：charCodeAt()  fromCharCode()
+**JS对全角与半角的相互转化：charCodeAt()  fromCharCode()**
 
 全角空格为12288，半角空格为32
 
@@ -399,4 +403,38 @@ Flash提供了**ExternalInterface**接口与JavaScript通信，ExternalInterface
 
 - **ExternalInterface.addCallback**("在js里可调用的flash方法名",flash内方法) //在flash中通过这个方法公开 在js中可调用的flash内的方法;
 - **ExternalInterface.call**("js方法",传给js的参数) //在flash里调用js里的方法
+
+#### 18. apply和call：提供参数的方式不同
+
+（1）基本使用方法：可以只写一次这个方法然后在另一个对象中继承它，而不用在新对象中重复写该方法。
+
+`Function.apply(obj,argu)`
+
+obj:这个对象将代替Function类里的this对象，即调用这个函数的对象（非严格模式下如果用null或undefined则会替代为全局环境）
+
+argu:要传入函数的参数数组，也可以是类数组
+
+`Function.call(obj,[param1[,param2[,…[,paramN]]]])`
+
+后面是要传入函数的参数列表
+
+**（2）apply的一些巧妙用法**
+
+>**用apply将数组添加到另一个数组**
+>
+>不同于concat(另建了一个副本，并没有改变原数组)
+>
+>```js
+>var arr1=[1,2,3];
+>var arr2=[4,5,6];
+>arr1.push.apply(arr1,arr2);
+>```
+>
+>**使用apply和内置函数**
+>
+>如：`Math.max()`,`Math.min()`
+>
+>**使用apply来链接构造器：**
+
+#### 19.bind
 
