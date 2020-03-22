@@ -1,3 +1,13 @@
+# 项目一：地图风格化滤镜
+
+Web框架：Django
+
+客户端：JS+HTML+CSS+JQuery+Bootstrap+Leaflet     
+
+服务端：Python
+
+## 一.Python
+
 ### 1.Python基础
 
 #### 1.1数据类型和变量：整数，浮点数，字符串，布尔值，空值
@@ -219,7 +229,11 @@ shutil模块：提供了copyfile()函数，用于复制文件，可以作为os�
 
 
 
+## 二.Django
 
 
-****
+
+# 项目二：巡逻管理小程序
+
+
 

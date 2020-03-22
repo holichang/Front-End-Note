@@ -1,3 +1,7 @@
+[TOC]
+
+
+
 ## 第一部分  作用域和闭包
 
 #### 第一章 作用域是什么
@@ -150,25 +154,25 @@ IIFE：立即执行函数表达式，相当于将块转为了一个可以被关�
 
 ## 第二部分 this和对象原型
 
-#### 1.this全面解析
+#### 第一章.this全面解析
 
-**1.1 调用位置：函数在代码中被调用的位置（而不是被声明的位置）**
+##### 1 调用位置：函数在代码中被调用的位置（而不是被声明的位置）
 
 调用栈：为了到达当前执行位置所调用的所有函数
 
-**1.2 绑定规则：**
+##### 2 绑定规则：
 
-（1）默认绑定：独立函数调用。可以把这条规则看作是无法应用其他规则时的默认规则；
+**2.1 默认绑定**：独立函数调用。可以把这条规则看作是无法应用其他规则时的默认规则；
 
 回调函数相当于隐式的传参
 
 *对于默认绑定来说，决定this绑定对象的并不是调用位置是否是严格模式，而是函数体是否处于严格模式*
 
-（2）隐式绑定：在一个对象内部包含一个指向函数的属性，并通过这个属性间接引用函数，从而把this间接（隐式）绑定到这个对象上
+**2.2 隐式绑定**：在一个对象内部包含一个指向函数的属性，并通过这个属性间接引用函数，从而把this间接（隐式）绑定到这个对象上
 
 考虑调用位置是否有上下文对象（对象属性引用链中只有上一层或者说是最后一层在调用位置中起作用），参数传递其实就是一种隐式赋值；可能会发生隐式丢失
 
-（3）显式绑定：使用call()和apply()
+**2.3 显式绑定**：使用call()和apply()
 
 **硬绑定：**典型应用场景就是创建一个包裹函数，负责接收参数并返回值
 
@@ -178,31 +182,34 @@ ES5提供了内置方法：Function.prototype.bind:会返回一个硬编码的�
 >
 >```js
 >if(!Function.prototype.myBind){
->    Function.prototype.myBind=function(oThis){
->        if(typeof oThis!=='function'){
->            throw new TypeError('Function.prototype.myBind-what is trying '+'to be found is not callable');
->        }
->        var aArgs=Array.prototype.slice.call(arguments,1);
->        var fToBind=this;//要绑定的函数
->        var fNOP=function () {};
->        //
->        var fBound=function(){
->            return fToBind.apply((this instanceof fNOP && oThis? this:oThis),aArgs.concat.apply(aArgs,arguments));
->        };   
->        fNOP.prototype=this.prototype;
->        fBound.prototype=new fNOP();
->        //
->        //这段代码会判断硬绑定是否是被new调用，如果是的话就会用新创建的this替换硬绑定的this
->        return fBound;
->    }
+>Function.prototype.myBind=function(oThis){
+>   if(typeof this!=='function'){
+>       throw new TypeError('Function.prototype.myBind-what is trying '+'to be found is not callable');
+>   }
+>   var aArgs=Array.prototype.slice.call(arguments,1);
+>   var fToBind=this;//要绑定的函数
+>   var fNOP=function () {};
+>   //
+>   var fBound=function(){
+>       return fToBind.apply((this instanceof fNOP && oThis? this:oThis),aArgs.concat.apply(aArgs,arguments));
+>       //不是被new调用的时候this绑定到全局对象或者undefined,被new调用的时候this绑定到fBound
+>   };   
+>   fNOP.prototype=this.prototype;
+>   fBound.prototype=new fNOP();
+>   //
+>   //这段代码会判断硬绑定是否是被new调用，如果是的话就会用新创建的this替换硬绑定的this
+>   return fBound;
+>}
 >}
 >```
 >
->
+>>如何判断一个函数是否是被new调用？new 的实现原理：
+>>
+>>
 
 **API调用的“上下文”：**如arr.forEach(function,可选参数，指定this)
 
-（4）new绑定:实际上并不存在所谓的“构造函数”，只有对于函数的构造调用
+**2.4 new绑定**:实际上并不存在所谓的“构造函数”，只有对于函数的构造调用
 
 使用new来调用函数，会自动执行下面的操作：
 
@@ -214,7 +221,7 @@ c.这个新对象会绑定到函数调用的this；
 
 d.如果函数没有其他返回对象，那么new表达式中的函数调用会自动返回这个新对象
 
-**1.3 优先级**：new绑定>显式绑定>隐式绑定>默认绑定
+##### 3 优先级：new绑定>显式绑定>隐式绑定>默认绑定
 
 > **判断this：**
 >
@@ -226,7 +233,7 @@ d.如果函数没有其他返回对象，那么new表达式中的函数调用会
 >
 > 4.如果上述都不是的话就是默认绑定，严格模式下this 绑定到undefined，非严格模式下绑定到全局对象
 
-**1.4 绑定例外**
+##### 4 绑定例外
 
 （1）被忽略的this
 
@@ -267,7 +274,7 @@ obj2.foo();//"obj2"
 fooOBJ.apply(obj1,arguments);//"obj3"
 ```
 
-**1.5 this词法**
+##### 5. this词法
 
 ES6中的箭头函数并不会使用四条标准的绑定规则，而是根据当前的词法作用域来决定this,具体来说，箭头函数会继承外层函数调用的this绑定（无论this绑定到什么），这其实和ES6之前的self=this机制一样
 
