@@ -34,7 +34,7 @@
 
 （4）单元测试；
 
-**模块化开发：**
+**模块化开发：**模块白盒，组件黑盒。颗粒度不同
 
 ##### 2.3 构建&编译
 
@@ -95,11 +95,15 @@
 
 #### 4.构建
 
-webpack，babel，Gulp,Grunt
+- Gulp,Grunt（重在规范前端开发流程，并不强调模块化）：集成度不高，要写很多配置后才可以用，无法做到开箱即用。相比于Grunt,Gulp增加了监听文件、读写文件、流式处理的功能。
 
+- fis:百度开发的，配置简单、开箱即用、内置了许多功能，无需做太多配置就能完成大量工作
 
+- webpack（重在模块化开发，文件压缩，预编译等功能只是附带的）：Webpack（https://webpack.js.org） 是一个打包模块化JavaScript的工具，在Webpack里一切文件皆模块，通过Loader转换文件，通过Plugin注入钩子，最后输出由多个模块组合成的文件。Webpack专注于构建模块化项目。
 
+  优点：专注于处理模块化的项目，能做到开箱即用、一步到位；可通过Plugin扩展，完整好用又不失灵活；使用场景不局限于Web开发；社区庞大活跃，经常引入紧跟时代发展的新特性，能为大多数场景找到已有的开源扩展；良好的开发体验。
 
+  缺点：只能用于采用模块化开发的项目。
 
 #### 5.less、sass、scss
 
@@ -132,7 +136,7 @@ ViewModel存在目的在于抽离Controller中展示的业务逻辑
 
 Vue双向绑定原理：
 
-![Vue双向绑定](E:\Front-End-Note\image\Vue双向绑定.jpg)
+![Vue双向绑定](D:\Front-End-Note\image\Vue双向绑定.jpg)
 
 从图中可以看出，当执行 new Vue() 时，Vue 就进入了初始化阶段，一方面Vue 会遍历 data 选项中的属性，并用 Object.defineProperty 将它们转为 getter/setter，实现数据变化监听功能；另一方面，Vue 的指令编译器Compile 对元素节点的指令进行解析，初始化视图，并订阅Watcher 来更新视图， 此时Watcher 会将自己添加到消息订阅器中(Dep),初始化完毕。当数据发生变化时，Observer 中的 setter 方法被触发，setter 会立即调用Dep.notify()，Dep 开始遍历所有的订阅者，并调用订阅者的 update 方法，订阅者收到通知后对视图进行相应的更新。因为VUE使用Object.defineProperty方法来做数据绑定，而这个方法又无法通过兼容性处理，所以Vue 不支持 IE8 以及更低版本浏览器。另外，查看vue原代码，发现在vue初始化实例时， 有一个proxy代理方法，它的作用就是遍历data中的属性，把它代理到vm的实例上，这也就是我们可以这样调用属性：vm.aaa等于vm.data.aaa。
 
@@ -361,8 +365,21 @@ select 字段将 `value` 作为 prop 并将 `change` 作为事件。
 
 ****
 
-## 三.慕课课程
+## 三.相关构建工具
 
-父组件向子组件传值：v-bind
+### 1.webpack打包
 
-子组件向父组件传值：.$emit(event,argu)
+WebPack可以看作是一个模块打包机，它用于分析项目结构，找到JS模块以及其他的一些浏览器无法直接运行的拓展语言（scss,typeScript等），将其编译并打包为合适的格式供浏览器使用。
+
+### 2.使用入门
+
+```js
+//首先初始化，生成package.json文件，该文件用于记录这个项目的详细信息
+npm init
+//接下来安装webpack
+npm install -g webpack//全局安装
+npm install --save-dev webpack //安装到某个项目文件夹
+```
+
+
+

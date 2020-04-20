@@ -48,7 +48,7 @@ RHS：变量出现在右侧时，RHS查询即简单的查找某个变量的值�
 
 作用域主要有两种工作模型：**词法作用域**（JS及大部分编程语言所采用）和动态作用域
 
-##### 1.词法阶段7
+##### 1.词法阶段
 
 词法作用域就是定义在词法阶段的作用域，换句话说，词法作用域是由你在写代码时将变量和块作用域写在哪里来决定的，因此当词法分析器处理代码时会保持作用域不变（大部分情况下是这样的）
 
@@ -128,7 +128,7 @@ JS引擎会在编译阶段进行数项的性能优化，其中有些优化依赖
 
 函数声明优先于变量声明;
 
-**一个普通块内部的函数声明通常会被提升到所在作用域的顶部we**
+**一个普通块内部的函数声明通常会被提升到所在作用域的顶部**
 
 #### 第五章 作用域闭包
 
@@ -136,15 +136,70 @@ JS引擎会在编译阶段进行数项的性能优化，其中有些优化依赖
 
 > 思考：通过使用闭包，在作用域之外也可以调用函数，同时该函数还可以访问本身词法作用域中的变量
 
-在定时器、事件监听器、AJAX请求、跨窗口通信、Web Workers或者任何其他的异步（或同步）任务中，只要使用了**回掉函数**，实际上就是在使用闭包
+在定时器、事件监听器、AJAX请求、跨窗口通信、Web Workers或者任何其他的异步（或同步）任务中，只要使用了**回调函数**，实际上就是在使用闭包
 
-##### 4.循环和闭包
+##### 1.1 循环和闭包
 
 IIFE：立即执行函数表达式，相当于将块转为了一个可以被关闭的作用域（var）
 
-使用块作用域（let）和闭包结合
+先看下面这个例子：
 
-##### 5.模块
+```js
+for(var i=1;i<=5;i++){
+    setTimeout(function timer(){
+        console.log(i);
+    },1000*i)
+}
+//预期：分别输出数字1-5，每秒一次，每次一个
+//该段代码会以每秒一次的频率输出五次6
+```
+
+缺陷是我们试图假设循环中的每个迭代在运行时都会给自己捕获一个i的副本，但是根据作用域的工作原理，实际情况是尽管循环中的五个函数是在各个迭代中分别定义的，但是它们都被**封闭在一个共享的全局作用域中，**因此事实上只有一个i。
+
+如何修改？
+
+**方法一：使用IIFE**
+
+```js
+for(var i=1;i<=5;i++){
+    function(j){
+        setTimeout(function timer(){
+            console.log(j)
+        },1000*j)
+    }(i)
+}
+```
+
+**方法二：使用setTimeout第三个参数**
+
+```js
+for(var i=0;i<=5;i++){
+    setTimeout(function timer(j){
+        console.log(j)
+    },i*1000,i)
+}
+//setTimeout的第三个参数为传给执行函数的其他参数（IE9 及其更早版本不支持该参数）。
+```
+
+**方法三：使用let：块级作用域**
+
+```js 
+for(var i=0;i<=5;i++){
+    let j=i;
+    setTimeout(function timer(j){
+        console.log(j)
+    },j*1000)
+}
+或：
+for(let i=0;i<=5;i++)
+    setTimeout(function timer(i){
+        console.log(i)
+    },i*1000)
+}
+//每次迭代都会创建一个i的副本
+```
+
+##### 1.2 模块
 
 模块模式需要具备两个必要条件：
 
@@ -152,7 +207,59 @@ IIFE：立即执行函数表达式，相当于将块转为了一个可以被关�
 
 （2）封闭函数必须返回至少一个内部函数，这样内部函数才能在私有作用域中形成闭包，并且可以访问或者修改私有的状态
 
+**现代的模块机制：**
+
+大多数模块依赖加载器/管理器本质上都是将这种模块定义封装进一个友好的API。这里并不会研究某个具体的库，为了宏观了解会简单介绍一些核心概念：
+
+```js
+var MyModules=(function(){
+    var module={};
+    function define(name,deps,impl){
+        for (var i=0;i<deps.length;i++){
+            deps[i]=module[deps[i]];
+        }
+        modules[name]=impl.apply(impl,deps)
+        //引入需要的依赖
+    }//该函数用于向管理中添加模块
+    function get(name){
+        return module[name];
+    }//通过名称获取模块
+    return{
+        define:define,
+        get:get
+    }
+})();
+//下面为使用方法：[]为新定义的模块需要引入的依赖模块列表
+MyModules.define("bar",[],function(){
+    function hello(who){
+        return 'let me introduce:'+who;
+    }
+    return {
+        hello:hello
+    }
+});
+MyModules.define("foo",["bar"],function(bar){
+    var hungry="hippo";
+    function awesome(){
+        console.log(bar.hello(hungry).toUpperCase());
+	}
+	return{
+        awesome:awesome
+    }
+});
+var bar=MyModules.get("bar");
+var foo=MyModules.get("foo");
+console.log(
+	bar.hello("hippo")
+);//let me introduce: hippo
+foo.awesome();//LET ME INTRODUCE:HIPPO
+```
+
+
+
 ## 第二部分 this和对象原型
+
+this既不指向函数自身也不指向函数的词法作用域，this实际上是在函数被调用时发生的绑定，它指向什么完全取决于函数在哪里被调用。
 
 #### 第一章.this全面解析
 
@@ -165,6 +272,8 @@ IIFE：立即执行函数表达式，相当于将块转为了一个可以被关�
 **2.1 默认绑定**：独立函数调用。可以把这条规则看作是无法应用其他规则时的默认规则；
 
 回调函数相当于隐式的传参
+
+非严格模式下，将全局对象用于默认绑定，而严格模式下，this会绑定到undefined
 
 *对于默认绑定来说，决定this绑定对象的并不是调用位置是否是严格模式，而是函数体是否处于严格模式*
 
