@@ -115,17 +115,37 @@ scss 与 sass 的区别：
 scss 需要大括号{}和分号;
 sass 什么都不用直接裸奔，通过缩进来区分代码等级，像 yaml 语言
 
-#### 6.MVVM与MVC
+#### 6.MVC、MVP、MVVM
 
-**MVVM**:Model-View-ViewModle：模型-视图-**视图模型（核心：双向桥梁）**
+**6.1 MVC**
+
+MVC模式软件可以分为三个部分:View（用户界面）,Controller（业务逻辑）,Model（数据保存）,但这三个部分没有明显的界限
+
+各部分之间的通信方式如下：所有通信都是单向的
+
+![MVC](D:\Front-End-Note\image\MVC.png)
+
+**6.2 MVP**
+
+MVP模式将Controller改名为Presenter,同时改变了通信方向：
+
+![MVP](D:\Front-End-Note\image\MVP.png)
+
+- 各部分之间的通信，都是双向的。
+-  View 与 Model 不发生联系，都通过 Presenter 传递。
+-  View 非常薄，不部署任何业务逻辑，称为"被动视图"（Passive View），即没有任何主动性，而 Presenter非常厚，所有逻辑都部署在那里。
+
+**6.3 MVVM：**Model-View-ViewModle：模型-视图-**视图模型（核心：双向桥梁）**
+
+![MVVM](D:\Front-End-Note\image\MVVM.png)
+
+和MVP唯一的区别是MVVM采用双向绑定，View的变化会自动反映在ViewModel，反之亦然。
 
 【模型】转为【视图】：数据绑定
 
 【视图】转为【模型】：DOM事件监听
 
 在MVVM的框架下视图和模型是不能直接通信的。它们通过ViewModel来通信，ViewModel通常要实现一个observer观察者，当数据发生变化，ViewModel能够监听到数据的这种变化，然后通知到对应的视图做自动更新，而当用户操作视图，ViewModel也能监听到视图的变化，然后通知数据做改动，这实际上就实现了数据的双向绑定。
-
-**MVC：**Model-View- Controller：MVC是单向通信。也就是View跟Model，必须通过Controller（页面业务逻辑）来承上启下
 
 ViewModel存在目的在于抽离Controller中展示的业务逻辑
 
@@ -138,29 +158,81 @@ Vue双向绑定原理：
 
 ![Vue双向绑定](D:\Front-End-Note\image\Vue双向绑定.jpg)
 
-从图中可以看出，当执行 new Vue() 时，Vue 就进入了初始化阶段，一方面Vue 会遍历 data 选项中的属性，并用 Object.defineProperty 将它们转为 getter/setter，实现数据变化监听功能；另一方面，Vue 的指令编译器Compile 对元素节点的指令进行解析，初始化视图，并订阅Watcher 来更新视图， 此时Watcher 会将自己添加到消息订阅器中(Dep),初始化完毕。当数据发生变化时，Observer 中的 setter 方法被触发，setter 会立即调用Dep.notify()，Dep 开始遍历所有的订阅者，并调用订阅者的 update 方法，订阅者收到通知后对视图进行相应的更新。因为VUE使用Object.defineProperty方法来做数据绑定，而这个方法又无法通过兼容性处理，所以Vue 不支持 IE8 以及更低版本浏览器。另外，查看vue原代码，发现在vue初始化实例时， 有一个proxy代理方法，它的作用就是遍历data中的属性，把它代理到vm的实例上，这也就是我们可以这样调用属性：vm.aaa等于vm.data.aaa。
+从图中可以看出，当执行 new Vue() 时，Vue 就进入了初始化阶段，一方面Vue 会遍历 data 选项中的属性，并用 Object.defineProperty 将它们转为 getter/setter，实现数据变化监听功能；另一方面，Vue 的指令编译器Compile 对元素节点的指令进行解析，初始化视图，并订阅Watcher 来更新视图， 此时Watcher 会将自己添加到消息订阅器中(Dep),初始化完毕。当数据发生变化时，Observer 中的 setter 方法被触发，setter 会立即调用Dep.notify()，Dep 开始遍历所有的订阅者，并调用订阅者的 update 方法，订阅者收到通知后对视图进行相应的更新。因为VUE使用Object.defineProperty方法来做数据绑定，而这个方法又无法通过兼容性处理，所以Vue 不支持 IE8 以及更低版本浏览器。另外，查看vue原代码，发现在vue初始化实例时， **有一个proxy代理方法，它的作用就是遍历data中的属性，把它代理到vm的实例上，这也就是我们可以这样调用属性：vm.aaa等于vm.data.aaa。**
 
 **proxy代理：**
 
 ****
 
-## 二.Vue知识点：
+## 二. Vue知识点：
 
-### 1.实例
+**Vue的特点：**
+
+- 渐进式框架：没有强主张，没有做职责之外的事
+
+- 自底向上逐层应用
+
+- 只关注视图层，便于与第三方库或既有项目整合
+
+- 当与**现代化的工具链**以及**各种支持类库**结合使用时，能够为复杂的单页应用提供驱动
+
+  >什么是现代化的工具链？
+  >
+  >
+
+**对比其它框架：**
+
+>
+>
+>
+
+Vue不仅可以把数据绑定到DOM文本或attribute，还可以绑定到DOM结构，以及强大的过渡效果系统，可以在Vue插入/更新/移除元素时自动应用过渡效果
+
+v-bind:attr绑定属性，v-if，v-for，v-on:click事件监听，v-model:处理用户输入
+
+### 1. Vue实例
+
+（1）当一个 Vue 实例被创建时，它将 `data` 对象中的所有的 property 加入到 Vue 的**响应式系统**中。当这些 property 的值发生改变时，视图将会产生“响应”，即匹配更新为新的值。
+
+（2）只有当实例被创建时就已经存在于data中的property才是响应式的。
+
+（3）Vue通过$将Vue的实例property和方法与用户定义的property区分开来。
+
+#### 1.1 实例生命周期钩子：
+
+钩子函数和回调函数：
+
+钩子函数 和 回调函数 一般都可用来处理事件“回调”。
+
+回调函数是你留个处理方法给事件，事件发生了以后会自动执行你留下调处理方法；
+
+钩子函数是好比找了个代理，监视事件是否发生，如果发生了这个代理就执行你的事件处理方法；在这个过程中，代理就是钩子函数；
+
+在某种意义上，回调函数做的处理过程跟钩子函数中要调用调方法一样
+
+但是有一点需要明确： 钩子函数一般是又事件发生者提供的。直白了说，它留下一个钩子，这个钩子的作用就是钩住你的回调方法。
+
+#### 1.2 生命周期图示：
 
 每个 Vue 实例在被创建时都要经过一系列的初始化过程——例如，需要设置数据监听、编译模板、将实例挂载到 DOM 并在数据变化时更新 DOM 等。
 
-<img src="E:\Front-End-Note\image\vue生命周期.png" alt="vue生命周期" style="zoom:50%;" />
+<img src="D:\Front-End-Note\image\vue生命周期.png" alt="vue生命周期" style="zoom:50%;" />
 
 ### 2.模板语法
 
+**虚拟DOM：**相比重排/重绘，javaScript运行速度很快，虚拟DOM是放在JS 和 HTML中间的一个层。它可以通过新旧DOM的对比，来获取对比之后的差异对象，然后有针对性的把差异部分真正地渲染到页面上，从而减少实际DOM操作，最终达到性能优化的目的。
+
+![virtualDOM](D:\Front-End-Note\image\virtualDOM.png)
+
 #### 2.1 插值
 
-**文本：**双大括号{{message}}（v-once指令可以限制执行一次性插值）
+**文本：**双大括号{{message}}（v-once指令可以限制执行一次性插值），数据可以改变但视图不会变化
 
-**原始HTML：**使用v-html指令
+**原始HTML：**使用v-html指令，需要一个元素作为容器，该容器的内容会被替换为v-html所指的属性
 
-**特性**：v-bind
+> **注意：**不能用v-html来复合局部模板，因为Vue不是基于字符串的模板引擎，对于用户界面，组件更适合作为可重用和可组合的基本单位。并且，在站点上动态渲染的任意 HTML 可能会非常危险，因为它很容易导致 [XSS 攻击](https://en.wikipedia.org/wiki/Cross-site_scripting)。请只对可信内容使用 HTML 插值，**绝不要**对用户提供的内容使用插值。
+
+**特性**：v-bind,通过v-bind绑定HTML attribute
 
 **使用JavaScript表达式**：每个绑定都只能包含**单个表达式**
 
@@ -170,7 +242,7 @@ Vue双向绑定原理：
 
 **参数**：如：v-bind:href="url"    v-on:click="doSomething"
 
-**动态参数：**用方括号括起来，如：v-bind:[attributaName]="url"
+**动态参数（2.6.0新增）：**用方括号括起来，如：v-bind:[attributaName]="url"
 
 *约束：动态参数的字符串值为null时，可以显性地移除绑定；动态参数表达式有一些语法约束，因为某些字符，如空格和引号，放在 HTML attribute 名里是无效的。*
 
@@ -206,11 +278,13 @@ watch:侦听
 
 **计算属性的setter**
 
-#### 3.2 侦听器
+#### 3.2 侦听器：
+
+使用watch选项允许我们执行异步操作（访问一个API），限制我们执行某操作的频率
 
 ### 4.Class与Style绑定：
 
-在将v-bind用于class和style时，表达式结果的类型除了字符串还可以是对象或数组
+在将v-bind用于class和style时，Vue.js做了专门的增强，表达式结果的类型除了字符串还可以是对象或数组
 
 #### 4.1绑定HTML Class
 
