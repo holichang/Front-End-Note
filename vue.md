@@ -1,3 +1,7 @@
+[TOC]
+
+
+
 ## 一.相关知识点
 
 #### 1.渐进式框架：
@@ -72,7 +76,7 @@
 
 - 平台层面
 
-1. 文件监听。配合动态构建、浏览器自动刷新等功能，提高开发效率；
+1. 文件监听。配合动态构建、浏览器自动刷新等功能，提高开发效率；（热加载）
 2. mock server。并非所有前端团队都是大前端（事实上很少团队是大前端），即使在大前端体系下，mock server的存在也是很有必要的；
 
 ##### 2.4 总结;
@@ -162,9 +166,13 @@ Vue双向绑定原理：
 
 **proxy代理：**
 
+
+
 ****
 
 ## 二. Vue知识点：
+
+## 基础：
 
 **Vue的特点：**
 
@@ -236,6 +244,10 @@ v-bind:attr绑定属性，v-if，v-for，v-on:click事件监听，v-model:处理
 
 **使用JavaScript表达式**：每个绑定都只能包含**单个表达式**
 
+>模板表达式都被放在沙盒中，只能访问全局变量的一个白名单，如Math和Date。你不应该在模板表达式中试图访问用户定义的全局变量。
+>
+>沙盒（sandbox）：为了让不可信的代码运行在一定的环境中，从而限制这些代码访问隔离区之外的资源
+
 #### 2.2 指令
 
 指令的职责是，当表达式的值改变时，将其产生的连带影响，响应式地作用于 DOM。
@@ -264,23 +276,40 @@ Vue实例下的computed属性
 
 **计算属性与方法**
 
-method:方法
-
-computed:计算属性
+method:方法；computed:计算属性
 
 不同的是**计算属性是基于它们的响应式依赖进行缓存的**。只在相关**响应式依赖**发生改变时它们才会重新求值。这就意味着只要 `message` 还没有发生改变，多次访问 `reversedMessage` 计算属性会立即返回之前的计算结果，而不必再次执行函数。相比之下，每当触发重新渲染时，调用方法将**总会**再次执行函数。
 
+>计算属性可以通过闭包来实现传参
+>
+>
+
 **计算属性与侦听属性**
 
-watch:侦听
+watch:侦听（被侦听的属性发生改变后会执行所对应的函数）
 
 侦听属性易被滥用
 
-**计算属性的setter**
+**计算属性的setter**：不是直接修改计算属性而是修改它的依赖
 
-#### 3.2 侦听器：
+#### 3.2 侦听属性watch：
 
-使用watch选项允许我们执行异步操作（访问一个API），限制我们执行某操作的频率
+使用watch选项允许我们执行异步操作（访问一个API），限制我们执行某操作的频率（watch中可以执行任何逻辑，如函数防抖，节流，Ajax异步获取数据）
+
+>计算属性和侦听属性：
+>
+>1. 计算属性：
+>   * 数据可以进行逻辑处理，减少模板中计算逻辑
+>   * 对计算属性中的数据进行监视
+>   * 依赖固定的数据类型
+>   * 由get和set两部分组成
+>   * 不能执行异步任务，必须同步执行
+>2. 侦听属性：
+>   * handler:侦听属性发生变化时触发的回调函数
+>   * deep:布尔值，设置为true时可监听到被侦听对象属性的变化
+>   * immediate:布尔值，设置为true将立即以表达式的当前值触发回调
+>3. computed能做的，watch都能做，反之则不行
+>4. 能用computed的尽量用computed
 
 ### 4.Class与Style绑定：
 
@@ -300,7 +329,7 @@ watch:侦听
 
 **数组语法**
 
-**自动添加前缀**
+**自动添加前缀：**当`v-bind:style`使用需要添加浏览器引擎前缀的CSS property时，如transform，Vue.js会自动侦测并添加相应的前缀
 
 **多重值**
 
@@ -318,9 +347,25 @@ watch:侦听
 
 **5.3 用key管理可复用的元素**
 
+**Vue会尽可能高效地渲染元素，通常会复用已有元素而不是从头开始渲染，为元素添加key可以阻止元素的复用**
+
 key属性表示两种元素是完全独立的，不要复用他们
 
 **5.4**  v-show：该元素一直存在，只是切换CSS属性的display
+
+>**`v-show `和` v-if`:**
+>
+>- 实现本质方法区别：带有v-show的元素始终会被渲染并保留在DOM中，v-show只是简单地切换元素的CSS属性display；v-if是动态地向DOM树内添加或者删除DOM元素
+>- 编译的区别：v-show其实就是在控制CSS；v-if切换有一个局部编译/卸载的过程，切换过程中销毁和重建内部的事件监听和子组件
+>- 编译的条件：v-show初始值为false也会进行编译；v-if初始值为false不会编译
+>- 性能：v-show只编译一次，后面其实就是控制css:display，而v-if不停地销毁和创建，故v-show性能更好一点
+>
+>**`display:none`和`visibility:hidden`:**
+>
+>- `display:none`会被渲染出来，但不占据任何空间，切换display的值会导致重排（盒子大小位置变了），但没有操作DOM；而`visibility:hidden`隐藏后的元素空间依旧保留，切换visibility只会导致重绘
+>- visibility具有继承性，给父元素设置visibility:hidden;子元素也会继承这个属性。但是如果重新给子元素设置visibility: visible,则子元素又会显示出来。这个和display: none有着质的区别
+>- visibility: hidden不会影响计数器的计数
+>- CSS3的transition支持visibility属性，但是并不支持display，由于transition可以延迟执行，因此可以配合visibility使用纯css实现hover延时显示效果。提高用户体验。
 
 `v-if` 是“真正”的条件渲染，因为它会确保在切换过程中条件块内的事件监听器和子组件适当地被销毁和重建。
 
@@ -328,13 +373,40 @@ key属性表示两种元素是完全独立的，不要复用他们
 
 v-if与v-for一起使用：当 `v-if` 与 `v-for` 一起使用时，`v-for` 具有比 `v-if` 更高的优先级。
 
+>**思考：display:none的元素被渲染了吗？**
+>
+>[参考：Web图片资源的加载与渲染时机](https://segmentfault.com/a/1190000010032501)
+>
+>浏览器渲染页面的顺序：
+>
+>* 解析html,构建dom树；
+>
+>* 加载css，解析css,构建css规则树；
+>
+>* 加载js，执行js代码
+>
+>* 把dom树和css规则树匹配构建渲染树
+>
+>* 计算元素位置进行布局
+>
+>* 绘制
+>
+>  当匹配DOM树和css规则树时，若发现一个严肃的对应的样式规则上有`display:none`，浏览器会认为该元素不可见，因此不会把该元素产出到渲染树
+>
+>  * 把背景图片转为base64格式作为占位符：
+>
+>  * base64格式有什么用？
+>
+>    **如果图片足够小且因为用处的特殊性无法被制作成雪碧图（CssSprites），在整个网站的复用性很高且基本不会被更新**。
+>
+
 ### 6.列表渲染
 
 **6.1 用v-for把一个数组对应为一组元素**
 
 `v-for` 还支持一个可选的第二个参数，即当前项的索引。
 
-**6.2 在v-for里使用对象**（会按照Object.keys()的结果遍历）
+**6.2 在v-for里使用对象**（会按照Object.keys()的结果遍历）：可以遍历对象
 
 支持第二个参数键名和第三个参数索引
 
@@ -344,7 +416,15 @@ v-if与v-for一起使用：当 `v-if` 与 `v-for` 一起使用时，`v-for` 具�
 
 这个默认的模式是高效的，但是**只适用于不依赖子组件状态或临时 DOM 状态 (例如：表单输入值) 的列表渲染输出**。
 
-为了给 Vue 一个提示，以便它能跟踪每个节点的身份，从而重用和重新排序现有元素，你需要为每项提供一个唯一 `key` 属性：key属性是Vue识别节点的一个通用机制
+为了给 Vue 一个提示，**以便它能跟踪每个节点的身份，从而重用和重新排序现有元素**，你需要为每项提供一个唯一 `key` 属性：key属性是Vue识别节点的一个通用机制
+
+>**注意事项：**
+>
+>由于JavaScript的限制，vue不能检测数组和对象的变化
+>
+>改变数组数据的方法：1.改变数组的引用；2.使用数组的变异方法；3. 使用`Vue.set()`或`vm.$set()`
+>
+>改变对象数据的方法：1.改变对象的引用；2.使用`Vue.set()`或`vm.$set()`
 
 **6.4 数组更新检测**
 
@@ -367,7 +447,7 @@ v-if与v-for一起使用：当 `v-if` 与 `v-for` 一起使用时，`v-for` 具�
 
 **6.5对象变更检测注意事项**
 
-对于已经创建的实例，Vue 不允许动态添加根级别的响应式属性。但是，可以使用 `Vue.set(object, propertyName, value)` 方法向嵌套对象添加响应式属性。
+对于已经创建的实例，Vue 不允许动态添加根级别的响应式属性。（向对象中添加新的属性不会响应在视图中）但是，可以使用 `Vue.set(object, propertyName, value)` 方法向嵌套对象添加响应式属性。
 
 有时你可能需要为已有对象赋值多个新属性，比如使用 `Object.assign()` 或 `_.extend()`。
 
@@ -390,7 +470,27 @@ favoriteColor: 'Vue Green'
 
 v-for="n in 10"
 
+**6.8 在<template>上使用v-for**
+
+**6.9 v-for 与 v-if一同使用**（v-for的优先级高于v-if）
+
+> 不推荐在同意元素上使用v-if和v-for
+
+>不推荐在同意元素上使用v-if和v-for
+
+当处于同一节点可以只渲染部分节点；
+
+当v-if处于外层元素，可以有条件的跳过循环的执行
+
+**6.10 在组件上使用v-for:**
+
+任何数据都不会被自动传递到组件里，因为组件有自己独立的作用域，为了把迭代数据传递到组件里， 要使用prop:
+
 ### 7.事件处理
+
+**有时候需要在内联语句处理器中访问原始的DOM事件，可以用特殊变量`$event`把它传入方法**
+
+**事件修饰符：**
 
 **按键修饰符：**
 
@@ -398,7 +498,15 @@ v-for="n in 10"
 
 **系统修饰符**：
 
-`.ctrl`,`.alt`,`.shift`,`.meta`修饰符仅在按下相应按键时才触发鼠标或键盘事件的监听器
+- `.ctrl`：keycode为17
+
+- `.alt`：keycode为18
+
+- `.shift`：keycode为16
+
+- ``.meta`：（windows键）
+
+  修饰符仅在按下相应按键时才触发鼠标或键盘事件的监听器
 
 请注意修饰键与常规按键不同，在和 `keyup` 事件一起用时，事件触发时修饰键必须处于按下状态。换句话说，只有在按住 `ctrl` 的情况下释放其它按键，才能触发 `keyup.ctrl`。而单单释放 `ctrl` 也不会触发事件。如果你想要这样的行为，请为 `ctrl` 换用 `keyCode`：`keyup.17`。
 
@@ -417,21 +525,271 @@ v-for="n in 10"
 
 ### 8.表单输入绑定
 
+#### 8.1 基础用法：
+
 `v-model` 在内部为不同的输入元素使用不同的属性并抛出不同的事件：
 
 text 和 textarea 元素使用 `value` 属性和 `input` 事件；
 
 checkbox 和 radio 使用 `checked` 属性和 `change` 事件；
 
-**如果把多个复选框绑定到同一个数组，如果添加value，当选中时会把value值传入数组中**
+**checkbox：单个复选框，绑定到checked布尔值；多个复选框，绑定到同一个数组,数组元素为被选中元素的value值，按照被选中顺序push进数组**
+
+**radio：单选框：绑定的为被选中元素的value属性值，String类型‘’**
 
 select 字段将 `value` 作为 prop 并将 `change` 作为事件。
 
-### 9.组件基础
+#### 8.2 修饰符：
 
+* .lazy：默认情况下，v-model在每次input事件触发后将输入框的值与数据进行同步，.lazy修饰符可以转为在change事件后进行同步
+* .number：自动将用户输入值转为数值类型，如果该值无法被parseFloat()解析，则会返回原始的值。***（type为number时，如果无法被parseFloat()解析，直接返回空字符串？type为text时，如果无法被parseFloat()解析返回原始值）***
+* .trim：自动过滤用户输入的首尾空白字符
 
+### 9.组件
 
+组件是可复用的实例，它们与`new Vue`接收相同的选项，例如`data`、`computed`、`watch`、`methods`以及生命周期钩子等。仅有的例外是像el这样根实例特有的选项。
 
+**但组件中的data选项必须是一个函数，这样每创建一个组件都会返回一个新的对象，各个组件之间互不影响**
+
+* 通过prop向子组件传递数据：将需要传递的数据赋给prop，component中再通过prop设置要显示的内容
+
+* 监听子组件事件
+* 通过插槽分发内容
+* 动态组件
+* 解析DOM模板时的注意事项
+
+#### 9.1 组件注册
+
+定义组件名的方式有两种：
+
+* kebab-case（短横线分隔命名）：使用该组件时也要用kebab-case;
+* PascleCase（首字母大写命名）：使用该组件时可以用短横线分隔命名，也可以用首字母大写命名，但**直接在DOM（非字符串模板）中使用时只有kebab-case是有效的**
+
+全局注册和局部注册：
+
+* 在模块系统中局部注册（通过import或require引入要使用的其他模块，进行局部注册）
+
+* 基础组建的自动化全局注册：**webpack：require.context**
+
+  >**待重看**
+  >
+  >
+
+#### 9.2 Prop
+
+* HTML中attribute名是大小写不敏感的，浏览器会把所有大写字符解释为小写字符。意味着使用DOM模板时camelCase的prop名需要使用其等价的短横线分隔命名；但在字符串模板中没有这个限制
+
+* 可以以对象的形式列出prop,指定名称和类型
+
+* 单向数据流：
+
+  * 所有的prop都使得其父子prop之间形成了一种**单向下行绑定**：父级prop的更新会向下流动到子组件中，但是反过来不行。这样会防止从子组件意外变更父级组件的状态，从而导致应用的数据流向难以理解。
+
+  * 每次父级组件发生变更时，子组件中所有的prop都将会刷新为最新的值。这意味着不应该在一个子组件内部改变prop，如果这样做了，Vue会在浏览器控制台中发出警告；
+  * 两种常见的试图变更一个prop的情形：
+    * 这个prop用于传递一个初始值：这个子组件接下来希望将其作为一个本地的prop数据来使用。（这种情况最好在子组件中定义一个data property，并将这个prop用作初始值 ）；
+    * 这个prop以一种原始的值传入且需要进行转换。（这种情况下，最好使用这个prop值来定义一个计算属性）
+
+* prop验证：
+
+  **prop会在一个组件实例创建之前进行验证，所以实例的property（如data,computed等）在default或validator函数中是不可用的**
+
+  type可以是下列原生构造函数中的一个：
+
+  * String
+  * Number
+  * Boolean
+  * Array
+  * Object
+  * Date
+  * Function
+  * Symbol
+  * 额外的，还可以是一个自定义构造函数，是通过instanceof来进行检查的
+
+* 非prop的Attribute：组件可以接受任意的attribute，而这些attribute会被添加到这个组件的根元素上
+
+  * 如果不希望组件的根元素继承attribute,可以在组件的选项中设置`inheritAttrs:false`;
+  * 通过`$attr`可以手动决定这些attribute会被赋予给哪个元素：`v-bind=$attrs`
+
+#### 9.3 自定义事件
+
+* 事件名：推荐使用kebab-case的事件名
+* 自定义组件的`v-model`,组件中的model选项允许一个自定义组件在使用v-model时定制prop和event(子传父，父传子)
+* 将原生事件绑定到组件上
+  * 可以在组件的**根元素**上直接监听一个原生事件：使用`v-on`的`.native`修饰符
+  * 如果想监听组件内部元素的原生事件：
+    * `$listeners`：是一个对象，里面包含了作用在这个组件上的所有监听器
+    * 可以配合`v-on='$listeners'`将所有的事件监听器指向这个组件的某个特定的子元素
+
+* 修饰符 `.sync`：实现双向绑定：`v-bind:value.sync='content'`，相当于实现了父传子，子组件触发了`update:value`的语法糖。也可以`v-bind.sync='object'`，对象object内部的属性作为被传值的属性，此时不支持表达式。
+
+#### 9.4 插槽
+
+**父级模板里的所有内容都是在父级作用域中编译的；子模版里的内容都是在子作用域中编译的**
+
+**（1）具名插槽**
+
+子组件模板中：`<slot name='head'></slot>`
+
+为命名的插槽为：`<slot name='default'></slot>`
+
+父组件中：`<template v-slot:head>要传入的内容</template>`
+
+**`v-slot`缩写为#，上述可以简写为：**
+
+`<template #head></template>`
+
+**（2）作用域插槽**：父级渲染时在插槽中使用子组件的数据：利用插槽prop
+
+原来的版本中：`<template slot-scope='slotProps'>{{slotProps.user}}</template>`
+
+2.6以后的版本中：
+
+* 只有默认插槽时：
+
+`<template v-slot:default='slotProps'>{{slotProps.user}}</template>`
+
+或`<template v-slot='slotProps'>{{slotProps.user}}</template>`
+
+**slotProps为包含所有插槽props的对象，可自己命名**
+
+插槽可以提供数据内容，由父组件提供样式
+
+#### 9.5 动态组件&异步组件
+
+**（1）动态组件**
+
+`<component v-bind:is='currentTabComponent'></component>`
+
+创建缓存，保存上一次渲染结果：
+
+```html
+<keep-alive>
+  <component v-bind:is='currentTabComponent'></component>
+</keep-alive>
+```
+
+**（2）异步组件** ：待进一步理解
+
+#### 9.6 处理边界情况
+
+**9.6.1 访问元素&组件**
+
+* 访问根实例：`this.$root`
+
+  在每个`new vue`实例的子组件中，可以将该实例作为一个全局store来访问或使用(推荐使用Vuex)
+
+* 访问父级组件实例：`this.$parent`
+
+  针对需要向任意更深层级的组件提供上下文信息时推荐**依赖注入**
+
+* 访问子组件实例或子元素：`this.$refs.input`：从父组件中获取到子组件，只会在组件渲染完成之后生效，不是响应式的。
+
+* 依赖注入：非响应式的。**建议使用vuex管理状态**
+
+  父级组件中：提供provide选项，无需知道哪些子组件使用了它提供的property
+
+  子组件中：提供inject选项，无需知道该注入是哪个父组件提供的
+
+**9.6.2 程序化的事件监听器**
+
+- 通过 `$on(eventName, eventHandler)` 侦听一个事件
+
+- 通过 `$once(eventName, eventHandler)` 一次性侦听一个事件
+
+- 通过 `$off(eventName, eventHandler)` 停止侦听一个事件
+
+  ```vue
+  this.$once('hook:beforeDestroy',function(){
+  	//事件处理函数
+  })
+  ```
+
+**9.6.3 循环引用**
+
+解决办法：
+
+* 等到开始组件的生命周期钩子`beforeCreate`时去注册它
+* 本地注册时使用webpack的异步import
+
+**9.6.4 模板定义的替代品**(不建议使用)
+
+* 内联模版：inline-template
+* X-Template：在`<script type='text/x-template' id=''></script>`
+
+**9.6.5 控制更新**
+
+* 强制更新：`$forceUpdate`
+* `v-once`：确保内容只被计算一次就被缓存起来
+
+### 10. 过渡/动画
+
+**10.1 进入/离开&列表过渡**
+
+**10.2 状态过渡**
+
+### 11. 可复用性&组合
+
+#### 11.1 混入：mixins
+
+```js
+var component=Vue.extend({
+  mixins:[myMixin]
+})
+//定义一个使用混入对象的组件
+```
+
+* 数据对象在内部会进行递归合并，并在发生冲突时以组件数据优先。
+* 同名钩子函数将合并为一个数组，都将被调用，混入对象的钩子将在组件自身钩子**之前**调用。
+* 值为对象的选项，例如 `methods`、`components` 和 `directives`，将被合并为同一个对象。两个对象键名冲突时，取组件对象的键值对。
+
+#### 11.2 自定义指令：
+
+>思考：什么时候用自定义指令，什么时候用自定义插件，二者区别
+>
+>使用自定义指令的情况：
+>
+>* 需要对普通DOM元素进行底层操作
+>* 
+
+* 全局指令：`Vue.directive(指令名，如：'focus'，{钩子函数：})`
+* 局部指令：`directives:{focus:{option}}`：只能在组件内部使用
+* 钩子函数：参数：el,binding,vnode,oldVnode
+  * bind:只调用一次，指令第一次绑定到元素时调用，在这里可以进行一次性的初始化设置
+  * inserted:被绑定元素插入父节点时调用（仅保证父节点存在，但不一定已被插入文档中）
+  * update:所在组件的VNode更新时调用，但可能发生在其子VNode 更新之前
+  * componentUpdated:指令所在组件的VNode及其子VNode全部更新后调用
+  * unbind:只调用一次，指令与元素解绑时调用
+
+#### 11.3 渲染函数&JSX
+
+* 虚拟DOM：`createElement`返回的是虚拟节点，简写为‘VNode’，虚拟DOM是对由Vue组件树建立起来的整个VNode树的称呼
+* 
+
+#### 11.4 插件
+
+插件通常用来为 Vue 添加全局功能。插件的功能范围没有严格的限制——一般有下面几种：
+
+1. 添加全局方法或者 property。如：[vue-custom-element](https://github.com/karol-f/vue-custom-element)
+2. 添加全局资源：指令/过滤器/过渡等。如 [vue-touch](https://github.com/vuejs/vue-touch)
+3. 通过全局混入来添加一些组件选项。如 [vue-router](https://github.com/vuejs/vue-router)
+4. 添加 Vue 实例方法，通过把它们添加到 `Vue.prototype` 上实现。
+5. 一个库，提供自己的 API，同时提供上面提到的一个或多个功能。如 [vue-router](https://github.com/vuejs/vue-router)
+
+* 使用插件：在调用`new Vue()`之前通过`Vue.use(myPlugin,{someOption:})`使用插件
+* 开发插件：
+
+#### 11.5 过滤器
+
+### 12. 工具
+
+#### 12.1 单文件组件
+
+#### 12.2 单元测试
+
+#### 12.3 TypeScript支持
+
+#### 12.4 生产环境部署
 
 
 
@@ -457,3 +815,41 @@ npm install --save-dev webpack //安装到某个项目文件夹
 
 
 
+## 1. Vue基础学习：
+
+### 1.1 可复用性&组合
+
+#### 1.1.1 混入：mixin:一个混入对象可以包含任意组件选项
+
+* 
+
+#### 1.1.2  自定义指令
+
+#### 1.1.3 渲染函数&JSX
+
+#### 1.1.4 插件
+
+#### 1.1.5 过滤器
+
+### 1.2 生命周期：（待确认，看源码）
+
+* beforeCreate之前初始化事件和生命周期；
+* beforeCreate和created之间初始化injection和reactivity:已经可以获取到data
+
+* created和beforeMount间的生命周期：
+
+  综合排名优先级：
+
+  render函数选项 > template选项 > outer HTML
+
+* beforeMount和mounted之间的生命周期：
+
+  在mounted之前，在dom中通过{{message}}占位，以js中的虚拟DOM形式存在，mounted之后给Vue实例添加$el成员，并替换掉挂载的DOM元素（beforeMount阶段是虚拟DOM，到了mounted阶段才有真实的DOM）
+
+* beforeUpdate和updated：
+
+  在beforeUpdate可以监听到data的变化但view层没有被重新渲染，view层的数据没有变化；到Updated的时候view层才被重新渲染，数据更新。
+
+### 1.3 
+
+## 
